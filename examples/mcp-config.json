@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "work-tracker": {
+      "command": "C:\\Tools\\WorkTracker\\work-tracker.exe",
+      "args": ["mcp"]
+    }
+  }
+}

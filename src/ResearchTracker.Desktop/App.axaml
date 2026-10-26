@@ -1,0 +1,4 @@
+<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ResearchTracker.Desktop" xmlns:suki="https://github.com/kikipoulet/SukiUI" x:Class="ResearchTracker.Desktop.App" RequestedThemeVariant="Dark">
+ <Application.Resources><ResourceDictionary><local:HexBrushConverter x:Key="HexBrushConverter"/><FontFamily x:Key="DefaultFontFamily">avares://Avalonia.Fonts.Inter/Assets#Inter</FontFamily><ResourceDictionary.MergedDictionaries><ResourceInclude Source="avares://WorkTracker.Desktop/DesignTokens.axaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Application.Resources>
+ <Application.Styles><suki:SukiTheme/><StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Simple/Simple.xaml"/><StyleInclude Source="avares://Nodify.Avalonia/Themes/Controls.xaml"/><StyleInclude Source="avares://WorkTracker.Desktop/WorkspaceStyles.axaml"/></Application.Styles>
+</Application>

@@ -1,0 +1,1 @@
+<Project><PropertyGroup><TargetFramework>net8.0</TargetFramework><Nullable>enable</Nullable><Product>Work Tracker</Product><ImplicitUsings>enable</ImplicitUsings><LangVersion>latest</LangVersion><TreatWarningsAsErrors>false</TreatWarningsAsErrors></PropertyGroup></Project>

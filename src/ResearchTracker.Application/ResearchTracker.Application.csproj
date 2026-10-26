@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><ItemGroup><ProjectReference Include="../ResearchTracker.Persistence/ResearchTracker.Persistence.csproj"/></ItemGroup></Project>

@@ -1,0 +1,91 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ResearchTracker.Desktop" x:Class="ResearchTracker.Desktop.MainWindow" Title="Work Tracker" Width="1510" Height="960" MinWidth="1100" MinHeight="700">
+ <Grid RowDefinitions="32,*,24">
+  <Border Name="CommandBar" Background="{DynamicResource FwCommandBar}" BorderBrush="{DynamicResource FwBorder}" BorderThickness="0,0,0,1" Padding="8,2">
+   <StackPanel Name="CommandBarActions" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="2">
+    <Button Name="ShortcutsButton" Classes="toolbar" Content="Shortcuts" Click="ShowShortcuts" ToolTip.Tip="Keyboard shortcuts (Ctrl+/)" AutomationProperties.Name="Keyboard shortcuts" />
+    <Button Name="SettingsButton" Classes="toolbar" Content="Settings" Click="ShowSettings" ToolTip.Tip="Settings (Ctrl+,)" AutomationProperties.Name="Settings" />
+    <Border Width="1" Height="14" Background="{DynamicResource FwBorder}" Margin="8,0" />
+    <Button Name="ExportBackupButton" Classes="toolbar" Content="Export backup" Click="ExportBackup" ToolTip.Tip="Export backup" AutomationProperties.Name="Export backup" />
+    <Button Name="RestoreBackupButton" Classes="toolbar" Content="Restore backup" Click="ImportBackup" ToolTip.Tip="Restore backup" AutomationProperties.Name="Restore backup" />
+   </StackPanel>
+  </Border>
+  <TabControl Name="MainTabs" Margin="0" Grid.Row="1">
+    <TabItem Header="Projects">
+
+    <Grid Name="WorkspaceGrid" ColumnDefinitions="256,*,4,280">
+   <Border Name="ProjectSidebar" Background="{DynamicResource FwPanel}" BorderBrush="{DynamicResource FwBorder}" BorderThickness="1" Padding="12">
+    <DockPanel><StackPanel DockPanel.Dock="Top" Spacing="8">
+     <TextBlock Text="Projects" Classes="title" Margin="4,4,0,8" />
+     <TextBox Name="ProjectSearch" Text="{Binding ProjectQuery, Mode=TwoWay}" PlaceholderText="Search projects…" ToolTip.Tip="Search projects (Ctrl+Shift+P)" />
+     <ListBox Name="ProjectList" ItemContainerTheme="{StaticResource FwNavigationItem}" ItemsSource="{Binding FilteredProjects}" SelectedItem="{Binding SelectedProject, Mode=OneWay}" SelectionChanged="ProjectSelected">
+      <ListBox.ItemTemplate><DataTemplate><Grid ColumnDefinitions="8,*,28"><Border Width="4" Height="16" HorizontalAlignment="Left" Background="{Binding DisplayColor, Converter={StaticResource HexBrushConverter}}" /><TextBlock Grid.Column="1" Text="{Binding Title}" Background="Transparent" Foreground="{DynamicResource FwTextPrimary}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" /><Button Grid.Column="2" Classes="toolbar" Content="⋯" Padding="4,0" MinWidth="24" ToolTip.Tip="Project options" AutomationProperties.Name="Project options"><Button.Flyout><MenuFlyout><MenuItem Header="Delete project" Click="DeleteProjectFromMenu" /></MenuFlyout></Button.Flyout></Button></Grid></DataTemplate></ListBox.ItemTemplate>
+     </ListBox>
+     <Button Content="Add project" Click="AddProject" HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+    </StackPanel><StackPanel VerticalAlignment="Bottom" Spacing="8"><Separator /><Button Content="Storage folder" Click="OpenStorage" HorizontalAlignment="Stretch" /></StackPanel></DockPanel>
+   </Border>
+
+   <Grid RowDefinitions="36,*" Grid.Column="1" Margin="12,4,12,0"><TextBlock Text="{Binding SelectedProject.Title}" Classes="title" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+      <TextBlock Grid.Row="1" Name="EmptyProjectHint" IsVisible="{Binding !HasProject}" Text="Create a project to get started." Classes="muted" Margin="0,12" />
+      <TabControl Grid.Row="1" Name="ProjectTabs" IsVisible="{Binding HasProject}">
+       <TabItem Header="Overview">
+        <ScrollViewer><StackPanel Margin="0,12,12,16" Spacing="8">
+         <TextBlock Text="PROJECT NAME" Classes="label" /><TextBox Text="{Binding SelectedProject.Title, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+         <TextBlock Text="PROJECT COLOR" Classes="label" /><WrapPanel Name="ProjectColorOptions" Orientation="Horizontal" />
+         <TextBlock Text="DESCRIPTION" Classes="label" /><TextBox Text="{Binding SelectedProject.Summary, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80" VerticalContentAlignment="Top" HorizontalAlignment="Stretch" />
+         <Button Name="DeleteProjectButton" Content="Delete project" Click="DeleteCurrentProject" Foreground="{DynamicResource FwDanger}" HorizontalAlignment="Left" />
+         <Separator /><TextBlock Text="Open tasks in this project" Classes="title" Margin="0,8,0,0" /><StackPanel Name="ProjectActivity" Spacing="4" />
+        </StackPanel></ScrollViewer>
+       </TabItem>
+       <TabItem Header="Project graph">
+        <Grid RowDefinitions="48,*">
+         <Grid ColumnDefinitions="*,Auto" Margin="0,8">
+          <TextBox Name="ResearchSearch" Text="{Binding Query, Mode=TwoWay}" PlaceholderText="Search this project's research…" MaxWidth="340" HorizontalAlignment="Stretch" Margin="0,0,12,0" ToolTip.Tip="Search research in this project (Ctrl+K)" />
+         </Grid>
+         <Border Grid.Row="1" ClipToBounds="True" BorderBrush="{DynamicResource FwBorder}" BorderThickness="1"><Grid><local:GraphCanvas Name="GraphView" /><local:GraphAdorner Name="GraphOverlay" />
+          <Border Name="GraphModeBar" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,16" Padding="4" Background="{DynamicResource FwPanel}" BorderBrush="{DynamicResource FwBorder}" BorderThickness="1" CornerRadius="3">
+           <StackPanel Orientation="Horizontal" Spacing="4">
+            <Button Name="AddStateButton" Content="+" Click="AddNode" ToolTip.Tip="Add state (Ctrl+N)" AutomationProperties.Name="Add state" Width="36" Height="32" Padding="0" FontSize="20" />
+            <Button Name="FitGraphButton" Content="Fit" Click="FitGraph" ToolTip.Tip="Fit graph (F)" AutomationProperties.Name="Fit graph" Height="32" Padding="10,4" />
+            <Border Width="1" Height="18" Background="{DynamicResource FwBorder}" Margin="3,0" />
+            <Button Name="ZoomOutButton" Content="−" Click="ZoomGraphOut" ToolTip.Tip="Zoom out" AutomationProperties.Name="Zoom out" Width="36" Height="32" Padding="0" FontSize="20" />
+            <Button Name="ZoomInButton" Content="+" Click="ZoomGraphIn" ToolTip.Tip="Zoom in" AutomationProperties.Name="Zoom in" Width="36" Height="32" Padding="0" FontSize="20" />
+            <Border Width="1" Height="18" Background="{DynamicResource FwBorder}" Margin="3,0" />
+            <Button Name="UndoButton" Click="UndoEdit" ToolTip.Tip="Undo (Ctrl+Z)" AutomationProperties.Name="Undo" Width="36" Height="32" Padding="8"><PathIcon Width="16" Height="16" Data="M7,3 L0,10 L7,17 L7,12 L13,12 C17,12 20,15 20,20 L23,20 C23,13 19,9 13,9 L7,9 Z" /></Button>
+            <Button Name="RedoButton" Click="RedoEdit" ToolTip.Tip="Redo (Ctrl+Shift+Z / Ctrl+Y)" AutomationProperties.Name="Redo" Width="36" Height="32" Padding="8"><PathIcon Width="16" Height="16" Data="M17,3 L24,10 L17,17 L17,12 L11,12 C7,12 4,15 4,20 L1,20 C1,13 5,9 11,9 L17,9 Z" /></Button>
+            <Button Name="SelectModeButton" Click="SelectGraphMode" ToolTip.Tip="Select mode (V) · drag a box to select items" AutomationProperties.Name="Select mode" Width="36" Height="32" Padding="8"><PathIcon Width="16" Height="16" Data="M3,2 L3,18 L7,14 L11,22 L14,20 L10,13 L17,13 Z" /></Button>
+            <Button Name="MoveModeButton" Click="MoveGraphMode" ToolTip.Tip="Move mode (H) · drag the canvas to pan" AutomationProperties.Name="Move mode" Classes="accent" Width="36" Height="32" Padding="8"><PathIcon Width="16" Height="16" Data="M7,12 L7,5 C7,2 10,2 10,5 L10,10 L10,3 C10,0 13,0 13,3 L13,10 L13,4 C13,1 16,1 16,4 L16,11 L16,6 C16,3 19,3 19,6 L19,15 C19,20 16,23 11,23 C8,23 6,21 4,18 L1,13 C0,10 3,9 5,12 L7,14 Z" /></Button>
+           </StackPanel>
+          </Border>
+          <ScrollBar Name="GraphHorizontalScroll" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="12" Margin="0,0,12,0" IsVisible="False" />
+          <ScrollBar Name="GraphVerticalScroll" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="12" Margin="0,0,0,12" IsVisible="False" />
+         </Grid></Border>
+        </Grid>
+       </TabItem>
+      </TabControl>
+     </Grid><GridSplitter Name="InspectorSplitter" Grid.Column="2" ResizeDirection="Columns" Background="{DynamicResource FwBorder}" />
+   <Border Name="InspectorPanel" Grid.Column="3" Background="{DynamicResource FwPanel}" BorderBrush="{DynamicResource FwBorder}" BorderThickness="1" Padding="12"><ScrollViewer HorizontalScrollBarVisibility="Disabled"><StackPanel Name="Inspector" Spacing="4" /></ScrollViewer></Border>
+  </Grid></TabItem>
+    <TabItem Header="Tasks">
+     <Grid RowDefinitions="44,40,*" Margin="12,4,12,0">
+      <Button Content="Add standalone task" Classes="accent" Click="AddTask" ToolTip.Tip="New task (Ctrl+T)" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,8" />
+      <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,4,0,8"><TextBox Name="TaskSearch" Text="{Binding TaskQuery, Mode=TwoWay}" PlaceholderText="Search tasks across all projects…" MaxWidth="400" HorizontalAlignment="Stretch" Margin="0,0,12,0" /><CheckBox Grid.Column="1" Content="Hide finished" IsChecked="True" IsCheckedChanged="HideFinished" /></Grid>
+      <ScrollViewer Grid.Row="2"><StackPanel Name="TaskList" Spacing="4" Margin="0,0,0,12" /></ScrollViewer>
+     </Grid>
+    </TabItem>
+    <TabItem Header="Plan">
+     <Grid Name="PlanGrid" RowDefinitions="48,40,*,5,320" Margin="12,4,12,0">
+      <Grid ColumnDefinitions="*,Auto" Margin="0,8"><TextBlock Name="WeekLabel" Classes="title" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" /><StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"><Button Content="Today" Click="CalendarToday" /><Button Name="WeekViewButton" Content="Week" Click="ShowWeekView" /><Button Name="MonthViewButton" Content="Month" Click="ShowMonthView" /><Button Name="AutoAssignButton" Content="Auto assign" Classes="accent" Click="AutoSchedule" /></StackPanel></Grid>
+      <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="0,4,0,8"><TextBox Name="PlannerSearch" Text="{Binding TaskQuery, Mode=TwoWay}" PlaceholderText="Search all projects and events…" MaxWidth="340" HorizontalAlignment="Stretch" Margin="0,0,12,0" /><TextBlock Name="CalendarCacheStatus" Grid.Column="1" Classes="muted" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" /><Button Grid.Column="2" Content="Google Calendar…" Click="ShowGoogleCalendar" /></Grid>
+      <Grid Grid.Row="2" ColumnDefinitions="28,*,28">
+       <Button Name="CalendarPrevious" Content="‹" Click="PreviousWeek" ToolTip.Tip="Previous period" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="100" Padding="2" Margin="0,0,4,0" />
+       <ScrollViewer Grid.Column="1" Name="WeekScroll" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" ClipToBounds="True"><Grid Name="DayColumns" ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="4" Margin="0,0,0,8" ClipToBounds="True" /></ScrollViewer>
+       <ContentControl Grid.Column="1" Name="MonthHost" IsVisible="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+       <Button Name="CalendarNext" Grid.Column="2" Content="›" Click="NextWeek" ToolTip.Tip="Next period" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="100" Padding="2" Margin="4,0,0,0" />
+      </Grid>
+      <GridSplitter Name="BacklogSplitter" Grid.Row="3" ResizeDirection="Rows" HorizontalAlignment="Stretch" Background="{DynamicResource FwBorder}" /><Border Name="BacklogPanel" Grid.Row="4" Background="{DynamicResource FwPanel}" BorderBrush="{DynamicResource FwBorder}" BorderThickness="1" Padding="10" Margin="0,0,0,8"><Grid RowDefinitions="Auto,*"><TextBlock Text="Tasks" Classes="title" Margin="0,0,0,8" /><ScrollViewer Grid.Row="1"><StackPanel Spacing="6"><TextBlock Name="ConflictSummary" Foreground="{DynamicResource FwDanger}" TextWrapping="Wrap" FontSize="11" /><StackPanel Name="Backlog" Spacing="6" /></StackPanel></ScrollViewer></Grid></Border>
+     </Grid>
+    </TabItem>
+   </TabControl>
+  <Border Grid.Row="2" Background="{DynamicResource FwPanel}" BorderBrush="{DynamicResource FwBorder}" BorderThickness="0,1,0,0" Padding="12,3"><TextBlock Text="{Binding Status}" Foreground="{DynamicResource FwTextMuted}" FontSize="11" TextTrimming="CharacterEllipsis" /></Border>
+ </Grid>
+</Window>
